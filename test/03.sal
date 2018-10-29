@@ -1,0 +1,21 @@
+==4608== Use of uninitialised value of size 8
+==4608==    at 0x109D77: max_cantidad(intervalo_t const*, unsigned int) (in /mnt/c/p3/tareap3ant/principal)
+==4608==    by 0x1094D8: main (in /mnt/c/p3/tareap3ant/principal)
+==4608== 
+==4608== Invalid write of size 8
+==4608==    at 0x109D77: max_cantidad(intervalo_t const*, unsigned int) (in /mnt/c/p3/tareap3ant/principal)
+==4608==    by 0x1094D8: main (in /mnt/c/p3/tareap3ant/principal)
+==4608==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==4608== 
+==4608== 
+==4608== Process terminating with default action of signal 11 (SIGSEGV)
+==4608==  Access not within mapped region at address 0x0
+==4608==    at 0x109D77: max_cantidad(intervalo_t const*, unsigned int) (in /mnt/c/p3/tareap3ant/principal)
+==4608==    by 0x1094D8: main (in /mnt/c/p3/tareap3ant/principal)
+==4608==  If you believe this happened as a result of a stack
+==4608==  overflow in your program's main thread (unlikely but
+==4608==  possible), you can try to increase the size of the
+==4608==  main thread stack using the --main-stacksize= flag.
+==4608==  The main thread stack size used in this run was 8388608.
+1>timeout: the monitored command dumped core
+Segmentation fault (core dumped)

@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1539087207 source:c:\cygwin64\home\p3\tareap3\principal.cpp
+	"include/intervalos.h"
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<assert.h>
+	<climits>
+	<time.h>
+
+1539087207 c:\cygwin64\home\p3\tareap3\include\intervalos.h
+
