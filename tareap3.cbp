@@ -32,8 +32,8 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="include/intervalos.h" />
+		<Unit filename="intervalos.cpp" />
 		<Unit filename="principal.cpp" />
-		<Unit filename="src/intervalos.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
