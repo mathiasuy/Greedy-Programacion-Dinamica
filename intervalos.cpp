@@ -86,6 +86,17 @@ void mergeSort(intervalo_t_des arr[], uint l, uint r){
     }
 }
 
+/*
+  Devuelve una copia de 'intervalos'.
+ */
+intervalo_t_des *copiar_estructura(intervalo_t *intervalos, uint cant_intervalos) {
+  intervalo_t_des *copia = new intervalo_t_des[cant_intervalos];
+  for (uint i = 0; i < cant_intervalos; i++){
+    copia[i].intervalo = intervalos[i];
+    copia[i].pos_real = i;
+  }
+  return copia;
+}
 /* Devuelve un arreglo de booleanos de 'n' con TRUE en los intervalos asignados
    los cuales no se superponen. O sea son compatibles.
    La cantidad de intervalos asignados debe ser la máxima posible.
@@ -94,22 +105,19 @@ void mergeSort(intervalo_t_des arr[], uint l, uint r){
 */
 
 bool *max_cantidad(const intervalo_t *intervalos, uint n){
-    intervalo_t_des *intervalos_temp = new intervalo_t_des[n+1];
-    for (uint i = 0; i<n; i++){
-        *intervalos_temp[i].intervalo = intervalos[i];
-        intervalos_temp[i].pos_real = i;
-        cout << "llego: " << i << " << asd";
-    }
+    intervalo_t_des *intervalos_temp = copiar_estructura(intervalos,n);
     mergeSort(intervalos_temp,0,n-1);
-    bool *booleanos = new bool[n+1];
-//    uint ultimo = intervalos_temp[0].intervalo->fin;
-    booleanos[intervalos_temp[0].pos_real] = true;
-    for (uint i = 1; i<n; i++){
-        uint prox_inicio = intervalos_temp[i].intervalo->inicio;
-        if (intervalos_temp[i].intervalo->fin > prox_inicio)
-            booleanos[intervalos_temp[i].pos_real] = false;
-        else
-            booleanos[intervalos_temp[i].pos_real] = true;
+    bool *booleanos = new bool[n];
+    uint tomado = n-1;
+    booleanos[intervalos_temp[tomado].pos_real] = true;
+    for (uint i = n-2; i<n; i++){
+        uint inicio_del_actual = intervalos_temp[tomado].intervalo->inicio;
+        uint final_del_anterior = intervalos_temp[i].intervalo->fin;
+        bool seSolapa = final_del_anterior > inicio_del_actual;
+        booleanos[intervalos_temp[i].pos_real] = !seSolapa;
+        if (!seSolapa){
+            tomado = i;
+        }
     }
     delete[] intervalos_temp;
     return booleanos;
@@ -123,6 +131,10 @@ bool *max_cantidad(const intervalo_t *intervalos, uint n){
     El tiempo de ejecucion de peor caso debe ser O(n*log(n)).
 */
 bool *max_volumen(const intervalo_t *intervalos, uint n){
+
+
+
+    mergeSort()
 /*
 
     OPT(0) = 0;
