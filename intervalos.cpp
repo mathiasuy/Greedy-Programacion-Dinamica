@@ -88,11 +88,11 @@ void mergeSort(intervalo_t_des arr[], uint l, uint r){
 
 /*
   Devuelve una copia de 'intervalos'.
- */
-intervalo_t_des *copiar_estructura(intervalo_t *intervalos, uint cant_intervalos) {
+*/
+intervalo_t_des *copiar_estructura(const intervalo_t *intervalos, uint cant_intervalos) {
   intervalo_t_des *copia = new intervalo_t_des[cant_intervalos];
   for (uint i = 0; i < cant_intervalos; i++){
-    copia[i].intervalo = intervalos[i];
+    *copia[i].intervalo = intervalos[i];
     copia[i].pos_real = i;
   }
   return copia;
@@ -123,6 +123,24 @@ bool *max_cantidad(const intervalo_t *intervalos, uint n){
     return booleanos;
 };
 
+// busca el trabajo siguiente que no se superpone con el trabajo elegido
+int binarySearch(intervalo_t_des* intervalos, uint elegido){
+    int lo = 0;
+    int hi = elegido-1;
+    //Busqueda binaria iterativamente
+    while (lo <= hi){
+        int medio = (lo + hi)/2;
+        if (intervalos[medio].intervalo->fin <=  intervalos[elegido].intervalo->inicio){
+            if (intervalos[medio +1].intervalo->fin <= intervalos[elegido].intervalo->inicio){
+                lo = medio + 1;
+            }else{
+                return medio;
+            }
+        }
+    }
+    return -1;
+}
+
 /* Devuelve un arreglo de booleanos de 'n' con TRUE en los intervalos asignados
    los cuales no se superponen.
    La suma de los volumenes de los intervalos asignados debe ser la máxima
@@ -132,18 +150,28 @@ bool *max_cantidad(const intervalo_t *intervalos, uint n){
 */
 bool *max_volumen(const intervalo_t *intervalos, uint n){
 
+    intervalo_t_des *copia = copiar_estructura(intervalos,n);
+    mergeSort(copia,0,n-1);
 
+    int *tabla = new int[n];
+    tabla[0] = copia[0].intervalo->volumen;
 
-    mergeSort()
-/*
+    //relleno la tabla recursivamente partiendo de datos ya cargados (en la misma recursividad y el paso base)
+    for (int i=1; i<n; i++){
+        int saltear = binarySearch(copia,i);
+        int incluir = copia[i].intervalo->volumen;
 
-    OPT(0) = 0;
-    OPT(1) = intervalo[1].volumen;
-    OPT(i) = max { OPT(i-1) + intervalo[i].volumen, OPT(i-1) }
+        if (saltear != -1){
+            incluir += tabla[saltear];
+        }
 
-*/
+        tabla[i] = max(saltear,tabla[i-1]);
+    }
 
-return new bool;
+    int resultado = tabla[n-1];
+    delete[] tabla;
+
+    return resultado;
 
 };
 
