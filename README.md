@@ -1,3 +1,3 @@
 repo en gitlab y github
 
-![alt text](https://raw.githubusercontent.com/mathiasuy/Greedy-Programacion-Dinamica/master/planteo.PNG)
+![alt text](https://github.com/mathiasuy/Greedy-Programacion-Dinamica/blob/master/planteo.PNG)
