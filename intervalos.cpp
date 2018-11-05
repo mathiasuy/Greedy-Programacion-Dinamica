@@ -1,10 +1,10 @@
-/*47158014 */
+/* 47158014 */
 
-#include <string.h>
-#include <stdio.h>
+//#include <string.h>
+//#include <stdio.h>
 #include "include/intervalos.h"
-#include<iostream>
-using namespace std;
+//#include<iostream>
+//using namespace std;
 /*
 typedef unsigned int uint;
 
@@ -18,73 +18,70 @@ struct intervalo_t {
 */
 
 struct intervalo_t_des {
-  // fin > inicio
-  intervalo_t* intervalo;
+  uint inicio;
+  uint fin;
+  uint volumen;
   uint pos_real;
 };
 
-void mergeSort(intervalo_t_des arr[], uint l, uint r){
+void mergeSort(intervalo_t_des arreglo[], uint izq, uint der){
 
-    if (l < r){
-        uint m = l + (r - l) / 2;
+    if (der > izq){
 
-        mergeSort(arr, l, m);
-        mergeSort(arr, m +1, r);
+        //CALCULO EL MEDIO
+        uint medio = izq + (der - izq) / 2;
 
-        uint i, j, k;
-        uint n1 = m - l + 1;
-        uint n2 =  r - m;
+        //LLAMADA RECURSIVA
+        mergeSort(arreglo, izq, medio);
+        mergeSort(arreglo, medio +1, der);
 
-        /* create temp arrays */
-        intervalo_t_des* L= new intervalo_t_des[n1];
-        intervalo_t_des* R = new intervalo_t_des[n2];
+        // CREO ARRAYS TEMPORALES PARA DIVIDIR
+        uint t1 = medio - izq + 1;
+        uint t2 =  der - medio;
+        intervalo_t_des* Left = new intervalo_t_des[t1];
+        intervalo_t_des* Right = new intervalo_t_des[t2];
+        for (uint j = 0; j < t2; j++){
+            Right[j] = arreglo[medio + 1+ j];
+        }
+        for (uint i = 0; i < t1; i++){
+            Left[i] = arreglo[izq + i];
+        }
 
-        /* Copy data to temp arrays L[] and R[] */
-        for (i = 0; i < n1; i++)
-            L[i] = arr[l + i];
-        for (j = 0; j < n2; j++)
-            R[j] = arr[m + 1+ j];
-
-        /* Merge the temp arrays back into arr[l..r]*/
-        i = 0; // Initial index of first subarray
-        j = 0; // Initial index of second subarray
-        k = l; // Initial index of merged subarray
-        while (i < n1 && j < n2)
+        //ELIJO EL MENOR EN CADA UNO PARA EL RESULTADO
+        uint i = 0, j = 0;
+        while (j < t2 && i < t1)
         {
-            if (L[i].intervalo->fin <= R[j].intervalo->fin)
+            if (Left[i].fin > Right[j].fin)
             {
-                arr[k] = L[i];
-                i++;
+                arreglo[izq] = Right[j];
+                j++;
             }
             else
             {
-                arr[k] = R[j];
-                j++;
+                arreglo[izq] = Left[i];
+                i++;
             }
-            k++;
+            izq++;
         }
 
-        /* Copy the remaining elements of L[], if there
-           are any */
-        while (i < n1)
+        //Copio lo que quedo del array sobrante
+        for (uint p = i; p < t1; p++)
         {
-            arr[k] = L[i];
-            i++;
-            k++;
+            arreglo[izq] = Left[p];
+            izq++;
         }
 
-        /* Copy the remaining elements of R[], if there
-           are any */
-        while (j < n2)
+        for (uint p = j; p < t2; p++)
         {
-            arr[k] = R[j];
-            j++;
-            k++;
+            arreglo[izq] = Right[p];
+            izq++;
         }
-        delete[] L;
-        delete[] R;
+
+        delete[] Left;
+        delete[] Right;
     }
 }
+
 
 /*
   Devuelve una copia de 'intervalos'.
@@ -92,53 +89,84 @@ void mergeSort(intervalo_t_des arr[], uint l, uint r){
 intervalo_t_des *copiar_estructura(const intervalo_t *intervalos, uint cant_intervalos) {
   intervalo_t_des *copia = new intervalo_t_des[cant_intervalos];
   for (uint i = 0; i < cant_intervalos; i++){
-    *copia[i].intervalo = intervalos[i];
+    copia[i].fin = intervalos[i].fin;
+    copia[i].inicio = intervalos[i].inicio;
+    copia[i].volumen = intervalos[i].volumen;
     copia[i].pos_real = i;
   }
   return copia;
 }
+
+void imprimir(intervalo_t_des *A, int tam){
+    for (int i=0; i < tam; i++);
+//        cout << A[i].fin << "\n" <<endl;
+}
+
+void imprimirBools(bool *A, int tam){
+    for (int i=0; i < tam; i++);
+//        cout << A[i]?1:0 << "\n" <<endl;
+}
+
 /* Devuelve un arreglo de booleanos de 'n' con TRUE en los intervalos asignados
    los cuales no se superponen. O sea son compatibles.
    La cantidad de intervalos asignados debe ser la máxima posible.
    'intervalos' es un arreglo con 'n' intervalo_t.
    El tiempo de ejecucion de peor caso debe ser O(n*log(n)).
 */
-
+// Idea extraida de libro
 bool *max_cantidad(const intervalo_t *intervalos, uint n){
     intervalo_t_des *intervalos_temp = copiar_estructura(intervalos,n);
-    mergeSort(intervalos_temp,0,n-1);
+//    imprimir(intervalos,n);
+//    imprimir(intervalos_temp,n);
+    mergeSort(intervalos_temp,0,n-1);// para ordenar en n log n
+//    imprimir(intervalos_temp,n);
     bool *booleanos = new bool[n];
-    uint tomado = n-1;
+    uint tomado = 0;
     booleanos[intervalos_temp[tomado].pos_real] = true;
-    for (uint i = n-2; i<n; i++){
-        uint inicio_del_actual = intervalos_temp[tomado].intervalo->inicio;
-        uint final_del_anterior = intervalos_temp[i].intervalo->fin;
-        bool seSolapa = final_del_anterior > inicio_del_actual;
-        booleanos[intervalos_temp[i].pos_real] = !seSolapa;
-        if (!seSolapa){
+    for (uint i = 1; i<n; i++){
+        uint fin_del_actual = intervalos_temp[tomado].fin;
+        uint inicio_del_siguiente = intervalos_temp[i].inicio;
+        if (fin_del_actual <= inicio_del_siguiente){
+            booleanos[intervalos_temp[i].pos_real] = true;
             tomado = i;
-        }
+        }else{
+            booleanos[intervalos_temp[i].pos_real] = false;
+        };
     }
     delete[] intervalos_temp;
     return booleanos;
 };
 
-// busca el trabajo siguiente que no se superpone con el trabajo elegido
-int binarySearch(intervalo_t_des* intervalos, uint elegido){
-    int lo = 0;
-    int hi = elegido-1;
-    //Busqueda binaria iterativamente
-    while (lo <= hi){
-        int medio = (lo + hi)/2;
-        if (intervalos[medio].intervalo->fin <=  intervalos[elegido].intervalo->inicio){
-            if (intervalos[medio +1].intervalo->fin <= intervalos[elegido].intervalo->inicio){
-                lo = medio + 1;
-            }else{
-                return medio;
-            }
-        }
+int p(intervalo_t_des* intervalos,const uint actual)
+{
+    int izq = 0;
+    int der = actual - 1;
+    while (izq <= der)
+    {
+        int med = (izq + der) / 2;
+        if (intervalos[med].fin > intervalos[actual].inicio)
+            der = med - 1;
+        else
+            if (intervalos[med + 1].fin > intervalos[actual].inicio)
+                return med;
+            else
+                izq = med + 1;
     }
     return -1;
+}
+
+void imprimir3(uint *A, int size)
+{
+    for (int i=0; i < size; i++);
+//        printf("%d ", A[i]);
+}
+
+uint maximo(uint uno, uint dos){
+    if (uno >= dos){
+        return uno;
+    }else{
+        return dos;
+    }
 }
 
 /* Devuelve un arreglo de booleanos de 'n' con TRUE en los intervalos asignados
@@ -150,28 +178,65 @@ int binarySearch(intervalo_t_des* intervalos, uint elegido){
 */
 bool *max_volumen(const intervalo_t *intervalos, uint n){
 
-    intervalo_t_des *copia = copiar_estructura(intervalos,n);
-    mergeSort(copia,0,n-1);
+//    printf("llego  \r\n");
+    intervalo_t_des *arreglo = copiar_estructura(intervalos,n);
+    mergeSort(arreglo,0,n-1);
 
-    int *tabla = new int[n];
-    tabla[0] = copia[0].intervalo->volumen;
+    uint *tabla = new uint[n];
+    bool* booleanos = new bool[n];
 
-    //relleno la tabla recursivamente partiendo de datos ya cargados (en la misma recursividad y el paso base)
-    for (int i=1; i<n; i++){
-        int saltear = binarySearch(copia,i);
-        int incluir = copia[i].intervalo->volumen;
+    tabla[0] = arreglo[0].volumen;
+    for (uint i=1; i<n; i++)
+    {
+        booleanos[i] = false;
 
-        if (saltear != -1){
-            incluir += tabla[saltear];
-        }
+        uint elvolumen = arreglo[i].volumen;
 
-        tabla[i] = max(saltear,tabla[i-1]);
+        // calculo p(j)
+        int pj = p(arreglo, i);
+        elvolumen += (pj != -1)?tabla[pj]:0;
+
+        // guardo los valores en la tabla de acuerdo a cual es el maximo
+        if (elvolumen > tabla[i-1])
+            tabla[i] = elvolumen;
+        else
+            tabla[i] = tabla[i-1];
     }
 
-    int resultado = tabla[n-1];
-    delete[] tabla;
 
-    return resultado;
+    // Idea extraida de Open Fing
+    uint j = n-1;
+    while (j > 0){
+        uint incluir = arreglo[j].volumen;
+        int pij = p(arreglo,j);
+        uint pj = pij==-1?0:tabla[pij];
+        incluir += pj;
+//        cout << "valor para " << j << " es " << (incluir > tabla[n-1]-arreglo[j].volumen) << " pos real " << arreglo[j].pos_real << endl;
+        if (incluir > tabla[j-1]){
+            booleanos[arreglo[j].pos_real] = true;
+            j = pij==-1?0:pij;
+        }else
+            j--;
+    }
+
+    uint suma = 0;
+    booleanos[0] = false;
+//    cout << "suma: " << endl;
+    for (uint i=0; i<n; i++){
+        suma += booleanos[arreglo[i].pos_real]?intervalos[arreglo[i].pos_real].volumen:0;
+    }
+//    cout << "res : " << arreglo[0].pos_real << endl;
+    booleanos[arreglo[0].pos_real] = suma < tabla[n-1];
+//    cout << "suma: " << suma << endl;
+
+
+//    imprimir4(arreglo,n);
+//    cout << "resultado: " << tabla[n-1] << endl;
+//    uint resultado = tabla[n-1];
+
+    delete[] tabla;
+    delete[] arreglo;
+
+    return booleanos;
 
 };
-

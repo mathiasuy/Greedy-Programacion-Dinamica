@@ -83,40 +83,30 @@ void shuffle(intervalo_t *A, uint n) {
 }
 
 /*
-  Pre: 'cant_total'   >= 'cant_solucion' > 0.
-  Pre: 'duracion_max' >= 'duracion_min'  >= 1.
-  Post: Devuelve un arreglo de intervalos de tamaño 'cant_total' tal que
-  el subconjunto mas grande de intervalos compatibles es de de tamaño 
-  'cant_solucion'. La duracion de cada intervalo retornado esta 
-  entre duracion_min' y 'duracion_max'.
+  Pre: 'cant_total' >= 'cant_sin_solapar' > 0.
+  Pre: 'duracion_max' >= 'duracion_min' >= 1.
+  Post: Devuelve un arreglo con 'cant_total' intervalos.
+  La maxima cantidad de intervalos sin solapar es 'cant_sin_solapar'.
+  La duracion de los intervalos devueltos esta entre 'duracion_min' y
+  'duracion_max'.
  */
-intervalo_t* generar_entrada(uint cant_total, uint cant_solucion, 
-  uint duracion_min, uint duracion_max)  {
-  intervalo_t* intervalos = new intervalo_t[cant_total];
-  //Agrego un desfasaje al inicio del primer intervalo.
-  uint inicio = duracion_max;
-  //A continuacion genero 'cant_solucion' intervalos que no se 
-  //solapen entre si. Estos seran los intervalos 'solucion'.
-  for (uint i = 0; i < cant_solucion; i++) {  
+intervalo_t *generar_entrada(uint cant_total, uint cant_sin_solapar,
+                             uint duracion_min, uint duracion_max) {
+  intervalo_t *intervalos = new intervalo_t[cant_total];
+  uint inicio = duracion_max;                   // defasaje inicial
+  for (uint i = 0; i < cant_sin_solapar; i++) { // intervalos solucion
     int duracion = rand(duracion_min, duracion_max);
     intervalos[i].inicio = inicio;
     intervalos[i].fin = inicio + duracion;
     inicio = intervalos[i].fin;
   }
-  //A continuacion genero intervalos que se solapen con los intervalos
-  //'solucion' generados en el paso anterior.
-  for (uint i = cant_solucion; i < cant_total; i++) { 
-    //Elijo aleatoriamente uno de los intervalos 'solucion'.
-    uint k = rand(0, cant_solucion-1); 
-    //Creo un nuevo intervalo que se solape con el intervalo 'solucion'
-    //elegido y hago que su tiempo de fin sea posterior al tiempo de fin
-    //del intervalo 'solucion'.
+  for (uint i = cant_sin_solapar; i < cant_total; i++) { // intervalos solapados
+    uint j = rand(0, cant_sin_solapar - 1);
     uint duracion = rand(duracion_min, duracion_max);
-    uint fin = rand(intervalos[k].fin, intervalos[k].fin + duracion - 1);
+    uint fin = rand(intervalos[j].fin, intervalos[j].fin + duracion - 1);
     intervalos[i].inicio = fin - duracion;
     intervalos[i].fin = fin;
   }
-  //Desordeno el arreglo para que la solucion no tenga un orden definido.
   shuffle(intervalos, cant_total);
   return intervalos;
 }
@@ -127,8 +117,8 @@ intervalo_t* generar_entrada(uint cant_total, uint cant_solucion,
   solapan. El chequeo se realiza en O(n*log(n))
  */
 bool hay_solapamiento(bool *solucion, intervalo_t *intervalos, uint n) {
-  uint *seleccionados = new uint[n];
-  uint cant_seleccionados = 0;
+  int *seleccionados = new int[n];
+  int cant_seleccionados = 0;
   for (uint i = 0; i < n; i++) {
     if (solucion[i]) {
       seleccionados[cant_seleccionados] = i;
@@ -136,8 +126,8 @@ bool hay_solapamiento(bool *solucion, intervalo_t *intervalos, uint n) {
     }
   }
   bool solapa = false;
-  for (uint i = 0; ((i < cant_seleccionados - 1) && (!solapa)); i++)
-    for (uint j = i + 1; ((j < cant_seleccionados) && (!solapa)); j++)
+  for (int i = 0; ((i < cant_seleccionados - 1) && (!solapa)); i++)
+    for (int j = i + 1; ((j < cant_seleccionados) && (!solapa)); j++)
       if ((intervalos[seleccionados[i]].fin >
            intervalos[seleccionados[j]].inicio) &&
           (intervalos[seleccionados[j]].fin >
